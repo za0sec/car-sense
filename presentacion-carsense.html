@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarSense — Presentación</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0e17;
+    --surface: #121928;
+    --surface2: #1a2332;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --accent3: #8b5cf6;
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-bright: #ffffff;
+    --border: rgba(59,130,246,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  .slide-container {
+    width: 100vw; height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), transform 0.6s cubic-bezier(0.4,0,0.2,1);
+    pointer-events: none;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .slide.prev {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  .slide-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(30px, 4vh, 60px) clamp(40px, 5vw, 80px);
+    padding-top: clamp(40px, 6vh, 70px);
+    transform-origin: top left;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== Typography — all clamp-based ===== */
+  .slide-number {
+    position: absolute;
+    top: clamp(14px, 2vh, 28px);
+    left: clamp(40px, 5vw, 80px);
+    font-family: 'Space Grotesk', monospace;
+    font-size: clamp(10px, 1.1vw, 13px);
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(32px, 4.5vw, 52px);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-bright);
+    margin-bottom: clamp(8px, 1.2vh, 16px);
+  }
+
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(22px, 2.8vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-bright);
+    margin-bottom: clamp(10px, 1.8vh, 22px);
+  }
+
+  h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(13px, 1.4vw, 18px);
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: clamp(4px, 0.6vh, 8px);
+  }
+
+  .subtitle {
+    font-size: clamp(13px, 1.3vw, 18px);
+    color: var(--text-dim);
+    font-weight: 300;
+    line-height: 1.5;
+    max-width: 700px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: clamp(9px, 0.9vw, 12px);
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: clamp(3px, 0.5vh, 6px) clamp(10px, 1vw, 16px);
+    margin-bottom: clamp(6px, 1vh, 14px);
+    background: rgba(59,130,246,0.06);
+  }
+
+  /* ===== Cards & Grids ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px, 1.5vw, 24px); }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: clamp(10px, 1.2vw, 20px); }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: clamp(8px, 1vw, 16px); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: clamp(10px, 1vw, 16px);
+    padding: clamp(12px, 1.6vh, 24px) clamp(14px, 1.4vw, 24px);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  .card .icon {
+    font-size: clamp(20px, 2.2vw, 30px);
+    margin-bottom: clamp(6px, 0.8vh, 12px);
+    display: block;
+  }
+
+  .card h3 { margin-bottom: clamp(4px, 0.4vh, 8px); color: var(--text-bright); font-size: clamp(12px, 1.2vw, 16px); }
+  .card p { font-size: clamp(11px, 1vw, 13px); color: var(--text-dim); line-height: 1.5; }
+
+  /* ===== Stats ===== */
+  .stat-row {
+    display: flex;
+    gap: clamp(16px, 2vw, 36px);
+    flex-wrap: wrap;
+  }
+
+  .stat .value {
+    font-family: 'Space Grotesk', monospace;
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+  }
+
+  .stat .label {
+    font-size: clamp(10px, 0.9vw, 13px);
+    color: var(--text-dim);
+    margin-top: 2px;
+    max-width: 200px;
+  }
+
+  /* ===== Bullet lists ===== */
+  .bullets { list-style: none; }
+
+  .bullets li {
+    position: relative;
+    padding-left: clamp(16px, 1.4vw, 22px);
+    margin-bottom: clamp(6px, 0.8vh, 12px);
+    font-size: clamp(12px, 1.1vw, 15px);
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: clamp(6px, 0.6vh, 9px);
+    width: clamp(5px, 0.5vw, 8px);
+    height: clamp(5px, 0.5vw, 8px);
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ===== Highlight box ===== */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.08));
+    border: 1px solid var(--border);
+    border-radius: clamp(8px, 1vw, 14px);
+    padding: clamp(10px, 1.2vh, 18px) clamp(14px, 1.4vw, 24px);
+    margin-top: clamp(8px, 1vh, 16px);
+  }
+
+  .highlight-box strong { color: var(--accent2); }
+  .highlight-box p { font-size: clamp(11px, 1vw, 14px); line-height: 1.5; }
+
+  /* ===== Chart containers ===== */
+  .chart-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: clamp(10px, 1vw, 16px);
+    padding: clamp(10px, 1.2vh, 20px) clamp(12px, 1.2vw, 20px);
+    position: relative;
+  }
+
+  .chart-box canvas {
+    max-height: clamp(120px, 22vh, 280px);
+  }
+
+  .chart-box h3 {
+    font-size: clamp(10px, 1vw, 13px);
+    margin-bottom: clamp(6px, 0.8vh, 12px);
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  /* ===== Nav controls ===== */
+  .nav {
+    position: fixed;
+    bottom: clamp(14px, 2vh, 28px);
+    right: clamp(20px, 3vw, 40px);
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .nav button {
+    width: clamp(34px, 3.5vw, 46px);
+    height: clamp(34px, 3.5vw, 46px);
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: clamp(14px, 1.4vw, 20px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .nav button:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    z-index: 100;
+  }
+
+  .slide-counter {
+    position: fixed;
+    bottom: clamp(18px, 2.5vh, 36px);
+    left: clamp(20px, 3vw, 40px);
+    font-family: 'Space Grotesk', monospace;
+    font-size: clamp(11px, 1vw, 14px);
+    color: var(--text-dim);
+    z-index: 100;
+  }
+
+  .slide-counter span { color: var(--text-bright); font-weight: 600; }
+
+  /* ===== Slide 1: Cover ===== */
+  .cover .slide-inner {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 70%);
+  }
+
+  .cover .logo-mark {
+    width: clamp(50px, 6vw, 76px);
+    height: clamp(50px, 6vw, 76px);
+    border-radius: clamp(12px, 1.4vw, 20px);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: clamp(14px, 2.5vh, 28px);
+    font-family: 'Space Grotesk';
+    font-size: clamp(20px, 2.5vw, 32px);
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .cover h1 {
+    font-size: clamp(40px, 5.5vw, 64px);
+    margin-bottom: clamp(6px, 1vh, 14px);
+    background: linear-gradient(135deg, #fff 40%, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cover .tagline {
+    font-size: clamp(14px, 1.6vw, 22px);
+    color: var(--text-dim);
+    font-weight: 300;
+    margin-bottom: clamp(20px, 4vh, 40px);
+  }
+
+  .cover .meta {
+    font-size: clamp(11px, 1vw, 14px);
+    color: var(--text-dim);
+    line-height: 2;
+  }
+
+  .cover .meta strong { color: var(--text); }
+
+  /* ===== Flow steps ===== */
+  .flow {
+    display: flex;
+    gap: 0;
+    align-items: center;
+    margin-top: clamp(8px, 1.2vh, 18px);
+  }
+
+  .flow-step {
+    flex: 1;
+    text-align: center;
+    padding: clamp(10px, 1.4vh, 22px) clamp(8px, 1vw, 14px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: clamp(8px, 1vw, 14px);
+  }
+
+  .flow-step .step-icon {
+    font-size: clamp(22px, 2.4vw, 34px);
+    margin-bottom: clamp(4px, 0.6vh, 10px);
+  }
+
+  .flow-step h3 { font-size: clamp(11px, 1.1vw, 14px); color: var(--text-bright); margin-bottom: 4px; }
+  .flow-step p { font-size: clamp(9px, 0.85vw, 12px); color: var(--text-dim); }
+
+  .flow-arrow {
+    font-size: clamp(16px, 1.6vw, 22px);
+    color: var(--accent);
+    padding: 0 clamp(4px, 0.5vw, 8px);
+    flex-shrink: 0;
+  }
+
+  /* ===== Percentage bars ===== */
+  .bar-chart { margin-top: clamp(4px, 0.6vh, 10px); }
+
+  .bar-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: clamp(5px, 0.7vh, 10px);
+    gap: clamp(8px, 1vw, 14px);
+  }
+
+  .bar-label {
+    font-size: clamp(10px, 0.9vw, 13px);
+    color: var(--text);
+    width: clamp(120px, 14vw, 200px);
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: clamp(18px, 2.4vh, 26px);
+    background: var(--surface2);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+  }
+
+  .bar-fill span {
+    font-size: clamp(9px, 0.85vw, 12px);
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .bar-fill.purple { background: linear-gradient(90deg, var(--accent3), #a78bfa); }
+  .bar-fill.green { background: linear-gradient(90deg, var(--green), #4ade80); }
+  .bar-fill.orange { background: linear-gradient(90deg, var(--orange), #fbbf24); }
+
+  /* ===== Conclusion grid ===== */
+  .conclusion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.2vw, 18px);
+  }
+
+  .conclusion-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: clamp(8px, 1vw, 14px);
+    padding: clamp(12px, 1.4vh, 22px) clamp(12px, 1.2vw, 20px);
+    display: flex;
+    gap: clamp(8px, 1vw, 14px);
+    align-items: flex-start;
+  }
+
+  .conclusion-card .c-icon {
+    width: clamp(32px, 3vw, 42px);
+    height: clamp(32px, 3vw, 42px);
+    border-radius: clamp(8px, 0.8vw, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(14px, 1.4vw, 20px);
+    flex-shrink: 0;
+  }
+
+  .conclusion-card h3 { font-size: clamp(12px, 1.1vw, 15px); color: var(--text-bright); margin-bottom: 4px; }
+  .conclusion-card p { font-size: clamp(10px, 0.9vw, 13px); color: var(--text-dim); line-height: 1.45; }
+
+  /* BG decorations */
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-glow {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Two-col layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(16px, 2.5vw, 36px);
+    align-items: start;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Funnel */
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(5px, 0.7vh, 8px);
+    margin-top: clamp(8px, 1vh, 14px);
+  }
+
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1vw, 16px);
+  }
+
+  .funnel-bar {
+    height: clamp(28px, 3.5vh, 38px);
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: clamp(11px, 1.1vw, 14px);
+    color: #fff;
+  }
+
+  .funnel-text {
+    font-size: clamp(10px, 0.9vw, 13px);
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="slide-counter"><span id="currentSlide">1</span> / 10</div>
+
+<div class="nav">
+  <button onclick="prevSlide()" aria-label="Anterior">&#8592;</button>
+  <button onclick="nextSlide()" aria-label="Siguiente">&#8594;</button>
+</div>
+
+<div class="slide-container">
+
+  <!-- SLIDE 1: PORTADA -->
+  <div class="slide cover active" data-slide="1">
+    <div class="bg-grid"></div>
+    <div class="bg-glow" style="top:-200px;right:-100px;background:var(--accent)"></div>
+    <div class="bg-glow" style="bottom:-200px;left:-100px;background:var(--accent2)"></div>
+    <div class="slide-inner">
+      <div class="logo-mark">CS</div>
+      <h1>CarSense</h1>
+      <p class="tagline">Diagnóstico vehicular simple para conductores</p>
+      <div class="meta">
+        <strong>Equipo 16</strong> — Manuel Durand &amp; Martín Elgue<br>
+        Aspectes Econòmics i Màrqueting<br>
+        2025
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: PROBLEMA -->
+  <div class="slide" data-slide="2">
+    <div class="bg-grid"></div>
+    <span class="slide-number">02 — Problema</span>
+    <div class="slide-inner">
+      <span class="tag">Contexto</span>
+      <h2>El problema que enfrentan millones de conductores</h2>
+      <div class="grid-4">
+        <div class="card">
+          <span class="icon">🚨</span>
+          <h3>Luces del tablero</h3>
+          <p>El <strong style="color:var(--accent2)">62,4%</strong> no supo qué significaba el "check engine".</p>
+        </div>
+        <div class="card">
+          <span class="icon">🔧</span>
+          <h3>Lenguaje técnico</h3>
+          <p>Incomodidad generalizada para entender problemas técnicos.</p>
+        </div>
+        <div class="card">
+          <span class="icon">💸</span>
+          <h3>Gastos innecesarios</h3>
+          <p>El <strong style="color:var(--orange)">43,6%</strong> pagó un arreglo que no era grave.</p>
+        </div>
+        <div class="card">
+          <span class="icon">😟</span>
+          <h3>Incertidumbre</h3>
+          <p>Más del <strong style="color:var(--red)">80%</strong> reconoce incertidumbre media-alta.</p>
+        </div>
+      </div>
+      <div class="highlight-box">
+        <p>El <strong>53,5%</strong> busca en internet cuando aparece una luz. Solo un <strong>5%</strong> usa un escáner OBD. No existe una herramienta propia, simple y confiable.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: LA SOLUCIÓN -->
+  <div class="slide" data-slide="3">
+    <div class="bg-grid"></div>
+    <span class="slide-number">03 — La solución</span>
+    <div class="slide-inner">
+      <span class="tag">Producto</span>
+      <h2>CarSense: tu mecánico de bolsillo</h2>
+      <p class="subtitle" style="margin-bottom:clamp(10px,1.5vh,22px)">Dispositivo OBD-II inteligente + App móvil que traduce señales técnicas en mensajes claros y accionables.</p>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-icon">📡</div>
+          <h3>Conectá el dispositivo</h3>
+          <p>Se enchufa al puerto OBD-II en segundos</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-icon">🔍</div>
+          <h3>Lee y traduce</h3>
+          <p>Interpreta códigos en lenguaje simple</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-icon">📱</div>
+          <h3>Te avisa al celular</h3>
+          <p>Urgencia, causas posibles y qué hacer</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-icon">🛡️</div>
+          <h3>Prevención continua</h3>
+          <p>Seguimiento, alertas y análisis</p>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:clamp(10px,1.5vh,22px)">
+        <div class="card" style="border-color:rgba(34,197,94,0.3)">
+          <h3 style="color:var(--green)">No solo lee códigos</h3>
+          <p>A diferencia de escáneres, <strong>interpreta</strong> y recomienda acciones.</p>
+        </div>
+        <div class="card" style="border-color:rgba(59,130,246,0.3)">
+          <h3 style="color:var(--accent)">Lenguaje humano</h3>
+          <p>Nada de "P0301". Te dice: "Falla en cilindro 3, urgencia media".</p>
+        </div>
+        <div class="card" style="border-color:rgba(139,92,246,0.3)">
+          <h3 style="color:var(--accent3)">Mantenimiento preventivo</h3>
+          <p>Anticipa fallas antes de que ocurran.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: MERCADO ACTUAL -->
+  <div class="slide" data-slide="4">
+    <div class="bg-grid"></div>
+    <span class="slide-number">04 — Mercado</span>
+    <div class="slide-inner">
+      <span class="tag">Unidades monetarias &amp; físicas</span>
+      <h2>Un mercado en plena expansión</h2>
+      <div class="two-col">
+        <div>
+          <h3 style="color:var(--accent);margin-bottom:clamp(6px,1vh,14px)">UM — Mercado global (USD mil millones)</h3>
+          <div class="chart-box">
+            <canvas id="chartMercado"></canvas>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--accent2);margin-bottom:clamp(6px,1vh,14px)">UF — Parque automotor en España</h3>
+          <div style="display:flex;flex-direction:column;gap:clamp(10px,1.5vh,18px)">
+            <div class="stat">
+              <div class="value">37,3M</div>
+              <div class="label">Vehículos totales en España</div>
+            </div>
+            <div class="stat">
+              <div class="value">25,24M</div>
+              <div class="label">Vehículos particulares (68% del parque)</div>
+            </div>
+            <div class="stat">
+              <div class="value">14,6 años</div>
+              <div class="label">Edad media del parque — alto potencial de fallos</div>
+            </div>
+          </div>
+          <div class="highlight-box">
+            <p><strong>57,1%</strong> diésel (sistemas complejos) · <strong>~30%</strong> supera los 20 años</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: SEGMENTO OBJETIVO -->
+  <div class="slide" data-slide="5">
+    <div class="bg-grid"></div>
+    <span class="slide-number">05 — Segmento</span>
+    <div class="slide-inner">
+      <span class="tag">Target</span>
+      <h2>¿A quién apuntamos?</h2>
+      <div class="two-col">
+        <div>
+          <p class="subtitle" style="font-size:clamp(12px,1.1vw,15px);margin-bottom:clamp(8px,1.2vh,18px)">Conductores particulares en España, 20–55 años, con vehículos de más de 5 años, preocupados por mantenimiento y costos.</p>
+          <div class="funnel">
+            <div class="funnel-step">
+              <div class="funnel-bar" style="width:100%">27M</div>
+              <span class="funnel-text">Conductores con carnet</span>
+            </div>
+            <div class="funnel-step">
+              <div class="funnel-bar" style="width:70%">16,2M</div>
+              <span class="funnel-text">Rango 20–55 años</span>
+            </div>
+            <div class="funnel-step">
+              <div class="funnel-bar" style="width:35%">~9,7M</div>
+              <span class="funnel-text">Con vehículo de +5 años</span>
+            </div>
+            <div class="funnel-step">
+              <div class="funnel-bar" style="width:22%;background:linear-gradient(90deg,var(--green),#4ade80)">4,8M</div>
+              <span class="funnel-text">Mercado potencial conservador</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="chart-box">
+            <h3>Perfil del segmento</h3>
+            <canvas id="chartSegmento"></canvas>
+          </div>
+          <div class="highlight-box">
+            <p>La encuesta validó interés más fuerte en <strong>jóvenes-adultos (18–34)</strong>, el 71,3% de la muestra, con alta afinidad tecnológica.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: METODOLOGÍA -->
+  <div class="slide" data-slide="6">
+    <div class="bg-grid"></div>
+    <span class="slide-number">06 — Metodología</span>
+    <div class="slide-inner">
+      <span class="tag">Investigación</span>
+      <h2>Cómo investigamos</h2>
+      <div class="grid-2">
+        <div class="card">
+          <span class="icon">📚</span>
+          <h3>Investigación secundaria</h3>
+          <ul class="bullets">
+            <li>Datos del mercado OBD, escáneres vehiculares y fleet management</li>
+            <li>Estadísticas del parque automotor español (DGT, ANFAC)</li>
+            <li>Informes de tendencias del sector automotive-tech</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="icon">📊</span>
+          <h3>Encuesta online estructurada</h3>
+          <ul class="bullets">
+            <li>Plataforma: Google Forms</li>
+            <li>Muestreo por conveniencia</li>
+            <li>Público objetivo: conductores 20–55 años</li>
+            <li>Preguntas cerradas + abiertas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:clamp(10px,1.5vh,20px)">
+        <div class="card" style="text-align:center">
+          <div class="stat">
+            <div class="value" style="font-size:clamp(24px,2.8vw,34px)">101</div>
+            <div class="label" style="margin:4px auto 0;text-align:center">Respuestas recopiladas</div>
+          </div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="stat">
+            <div class="value" style="font-size:clamp(24px,2.8vw,34px)">5</div>
+            <div class="label" style="margin:4px auto 0;text-align:center">Problemas de investigación</div>
+          </div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="stat">
+            <div class="value" style="font-size:clamp(24px,2.8vw,34px)">20+</div>
+            <div class="label" style="margin:4px auto 0;text-align:center">Preguntas en el cuestionario</div>
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box">
+        <p><strong>Objetivo:</strong> Validar demanda real, percepción de valor, disposición de pago, satisfacción con soluciones actuales y atributos más valorados.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: PERFIL DE LA MUESTRA -->
+  <div class="slide" data-slide="7">
+    <div class="bg-grid"></div>
+    <span class="slide-number">07 — Muestra</span>
+    <div class="slide-inner">
+      <span class="tag">Perfil demográfico</span>
+      <h2>¿Quiénes respondieron?</h2>
+      <div class="two-col">
+        <div>
+          <div class="chart-box">
+            <h3>Distribución por edad</h3>
+            <canvas id="chartEdad"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="chart-box" style="margin-bottom:clamp(8px,1vh,16px)">
+            <h3>Características clave de la muestra</h3>
+            <div class="bar-chart">
+              <div class="bar-item">
+                <span class="bar-label">Conducen regularmente</span>
+                <div class="bar-track"><div class="bar-fill green" data-width="91%"><span>91%</span></div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">Tienen vehículo propio</span>
+                <div class="bar-track"><div class="bar-fill" data-width="75.7%"><span>75,7%</span></div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">Uso diario / varias veces sem.</span>
+                <div class="bar-track"><div class="bar-fill purple" data-width="77%"><span>77%</span></div></div>
+              </div>
+              <div class="bar-item">
+                <span class="bar-label">Auto particular</span>
+                <div class="bar-track"><div class="bar-fill orange" data-width="67%"><span>67%</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="highlight-box">
+            <p>Muestra representativa de conductores activos. <strong>+70%</strong> menores de 35 años.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: HALLAZGOS -->
+  <div class="slide" data-slide="8">
+    <div class="bg-grid"></div>
+    <span class="slide-number">08 — Hallazgos</span>
+    <div class="slide-inner">
+      <span class="tag">Validación del problema</span>
+      <h2>Los datos confirman: el problema es real</h2>
+      <div class="two-col">
+        <div>
+          <div class="bar-chart">
+            <div class="bar-item">
+              <span class="bar-label">Check engine: no supieron</span>
+              <div class="bar-track"><div class="bar-fill" data-width="62.4%"><span>62,4%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Buscan en internet</span>
+              <div class="bar-track"><div class="bar-fill purple" data-width="53.5%"><span>53,5%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Pagaron arreglo no grave</span>
+              <div class="bar-track"><div class="bar-fill orange" data-width="43.6%"><span>43,6%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Incertidumbre media-alta</span>
+              <div class="bar-track"><div class="bar-fill green" data-width="83.2%"><span>83,2%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Usan escáner OBD</span>
+              <div class="bar-track"><div class="bar-fill" data-width="5%" style="min-width:45px"><span>~5%</span></div></div>
+            </div>
+          </div>
+          <div class="highlight-box">
+            <p>Preocupaciones: <strong>pérdida de tiempo</strong> (29,7%), <strong>costo de reparación</strong> (21,8%) y <strong>quedarse varado</strong> (21,8%).</p>
+          </div>
+        </div>
+        <div>
+          <div class="chart-box" style="margin-bottom:clamp(8px,1vh,14px)">
+            <h3>Nivel de incertidumbre ante fallas (1–5)</h3>
+            <canvas id="chartIncertidumbre"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>¿Qué hacés cuando se enciende una luz?</h3>
+            <canvas id="chartAccion"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: TEST DE CONCEPTO -->
+  <div class="slide" data-slide="9">
+    <div class="bg-grid"></div>
+    <span class="slide-number">09 — Validación</span>
+    <div class="slide-inner">
+      <span class="tag">Test de concepto + Precio + Canales</span>
+      <h2>El concepto funciona</h2>
+      <div class="two-col">
+        <div>
+          <h3 style="color:var(--green)">Interés en el producto</h3>
+          <div class="chart-box" style="margin-bottom:clamp(8px,1vh,16px)">
+            <canvas id="chartInteres"></canvas>
+          </div>
+          <h3 style="color:var(--orange)">¿Cuánto pagarían?</h3>
+          <div class="chart-box">
+            <canvas id="chartPrecio"></canvas>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--accent3)">Valor percibido</h3>
+          <div class="bar-chart" style="margin-bottom:clamp(10px,1.5vh,20px)">
+            <div class="bar-item">
+              <span class="bar-label">Control y tranquilidad</span>
+              <div class="bar-track"><div class="bar-fill green" data-width="70.3%"><span>70,3%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Evitar gastos innecesarios</span>
+              <div class="bar-track"><div class="bar-fill" data-width="56.4%"><span>56,4%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Mayor seguridad</span>
+              <div class="bar-track"><div class="bar-fill purple" data-width="53.5%"><span>53,5%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Anticipar fallas</span>
+              <div class="bar-track"><div class="bar-fill orange" data-width="51.5%"><span>51,5%</span></div></div>
+            </div>
+          </div>
+          <h3 style="color:var(--accent)">Canales preferidos (online)</h3>
+          <div class="bar-chart">
+            <div class="bar-item">
+              <span class="bar-label">Instagram</span>
+              <div class="bar-track"><div class="bar-fill" data-width="70%"><span>70%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">WhatsApp</span>
+              <div class="bar-track"><div class="bar-fill green" data-width="61.7%"><span>61,7%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Webs y blogs</span>
+              <div class="bar-track"><div class="bar-fill purple" data-width="55%"><span>55%</span></div></div>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Facebook</span>
+              <div class="bar-track"><div class="bar-fill orange" data-width="50%"><span>50%</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: CONCLUSIONES -->
+  <div class="slide" data-slide="10">
+    <div class="bg-grid"></div>
+    <div class="bg-glow" style="top:-150px;left:30%;background:var(--accent3)"></div>
+    <span class="slide-number">10 — Cierre</span>
+    <div class="slide-inner">
+      <span class="tag">Conclusiones &amp; Recomendaciones</span>
+      <h2>Lo que aprendimos</h2>
+      <div class="conclusion-grid">
+        <div class="conclusion-card">
+          <div class="c-icon" style="background:rgba(34,197,94,0.15)">✅</div>
+          <div>
+            <h3>Hay necesidad real</h3>
+            <p>El 62% experimentó el "check engine" sin entenderlo. Más del 80% siente incertidumbre media-alta. El problema existe y es frecuente.</p>
+          </div>
+        </div>
+        <div class="conclusion-card">
+          <div class="c-icon" style="background:rgba(59,130,246,0.15)">💡</div>
+          <div>
+            <h3>Concepto bien recibido</h3>
+            <p>52% dijo "sí", 47% "puede ser", solo 1% "no". El valor principal percibido: control y tranquilidad.</p>
+          </div>
+        </div>
+        <div class="conclusion-card">
+          <div class="c-icon" style="background:rgba(245,158,11,0.15)">💰</div>
+          <div>
+            <h3>Precio ideal: 30–60 €</h3>
+            <p>El 51% elegiría esta franja. La suscripción: mejor como complemento opcional.</p>
+          </div>
+        </div>
+        <div class="conclusion-card">
+          <div class="c-icon" style="background:rgba(139,92,246,0.15)">📢</div>
+          <div>
+            <h3>Comunicar simple</h3>
+            <p>Priorizar Instagram (70%) y WhatsApp (62%). Posicionar como herramienta de tranquilidad, no gadget tech.</p>
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box" style="text-align:center">
+        <p style="font-size:clamp(12px,1.2vw,16px)"><strong style="color:var(--green)">Línea futura:</strong> Red de talleres recomendados — el <strong>56%</strong> mostró interés definitivo en esta funcionalidad.</p>
+      </div>
+      <p style="text-align:center;margin-top:clamp(8px,1.2vh,20px);font-size:clamp(10px,1vw,14px);color:var(--text-dim)">
+        <strong style="color:var(--text-bright)">CarSense</strong> · Manuel Durand &amp; Martín Elgue · Equipo 16
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+
+function fitSlide(slide) {
+  const inner = slide.querySelector('.slide-inner');
+  if (!inner) return;
+  inner.style.transform = 'none';
+  const vh = window.innerHeight;
+  const contentH = inner.scrollHeight;
+  if (contentH > vh) {
+    const scale = Math.max(0.55, vh / contentH);
+    inner.style.transform = `scale(${scale})`;
+    inner.style.transformOrigin = 'top left';
+    inner.style.width = (100 / scale) + '%';
+    inner.style.height = (100 / scale) + '%';
+  } else {
+    inner.style.width = '100%';
+    inner.style.height = '100%';
+  }
+}
+
+function fitAllSlides() {
+  slides.forEach(s => fitSlide(s));
+}
+
+function showSlide(n) {
+  slides.forEach((s, i) => {
+    s.classList.remove('active', 'prev');
+    if (i === n) s.classList.add('active');
+    else if (i < n) s.classList.add('prev');
+  });
+  document.getElementById('currentSlide').textContent = n + 1;
+  document.getElementById('progress').style.width = ((n + 1) / slides.length * 100) + '%';
+  animateBars(slides[n]);
+  initChartsForSlide(n + 1);
+  requestAnimationFrame(() => fitSlide(slides[n]));
+}
+
+function nextSlide() { if (current < slides.length - 1) { current++; showSlide(current); } }
+function prevSlide() { if (current > 0) { current--; showSlide(current); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+});
+
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (diff > 50) nextSlide();
+  else if (diff < -50) prevSlide();
+});
+
+window.addEventListener('resize', () => {
+  chartInitialized = {};
+  Object.keys(chartInstances).forEach(k => { chartInstances[k].destroy(); delete chartInstances[k]; });
+  initChartsForSlide(current + 1);
+  fitAllSlides();
+});
+
+function animateBars(slide) {
+  const bars = slide.querySelectorAll('.bar-fill');
+  bars.forEach(b => {
+    b.style.width = '0';
+    setTimeout(() => { b.style.width = b.dataset.width; }, 200);
+  });
+}
+
+/* ===== CHART.JS ===== */
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(59,130,246,0.1)';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+
+const chartInstances = {};
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+let chartInitialized = {};
+
+function initChartsForSlide(n) {
+  if (chartInitialized[n]) return;
+  chartInitialized[n] = true;
+  if (n === 4) initChartMercado();
+  if (n === 5) initChartSegmento();
+  if (n === 7) initChartEdad();
+  if (n === 8) { initChartIncertidumbre(); initChartAccion(); }
+  if (n === 9) { initChartInteres(); initChartPrecio(); }
+}
+
+function initChartMercado() {
+  destroyChart('chartMercado');
+  chartInstances['chartMercado'] = new Chart(document.getElementById('chartMercado'), {
+    type: 'bar',
+    data: {
+      labels: ['OBD Aftermarket', 'Vehicle Scanner', 'Fleet Mgmt'],
+      datasets: [
+        { label: '2025', data: [7.46, 2.83, 37.71], backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 5, barPercentage: 0.6 },
+        { label: '2030–34', data: [19.75, 4.40, 70.26], backgroundColor: 'rgba(6,182,212,0.7)', borderRadius: 5, barPercentage: 0.6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { padding: 10, usePointStyle: true, pointStyle: 'rectRounded', font: { size: 10 } } },
+        tooltip: { callbacks: { label: c => c.dataset.label + ': USD ' + c.parsed.y + ' mil M' } }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(59,130,246,0.06)' }, ticks: { callback: v => '$' + v + 'B', font: { size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function initChartSegmento() {
+  destroyChart('chartSegmento');
+  chartInstances['chartSegmento'] = new Chart(document.getElementById('chartSegmento'), {
+    type: 'radar',
+    data: {
+      labels: ['Uso frecuente', 'Preocupación mant.', 'Adopción tech', 'Vehículo +5 años', 'Capacidad econ.'],
+      datasets: [{
+        label: 'Target',
+        data: [85, 75, 80, 60, 70],
+        backgroundColor: 'rgba(59,130,246,0.15)',
+        borderColor: 'rgba(59,130,246,0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: '#3b82f6'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          beginAtZero: true, max: 100,
+          grid: { color: 'rgba(59,130,246,0.08)' },
+          angleLines: { color: 'rgba(59,130,246,0.08)' },
+          pointLabels: { font: { size: 10 }, color: '#cbd5e1' },
+          ticks: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function initChartEdad() {
+  destroyChart('chartEdad');
+  chartInstances['chartEdad'] = new Chart(document.getElementById('chartEdad'), {
+    type: 'doughnut',
+    data: {
+      labels: ['18–24', '25–34', '35–44', '45–54', '55+'],
+      datasets: [{
+        data: [48.5, 22.8, 13.2, 9.5, 6],
+        backgroundColor: ['#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#ef4444'],
+        borderWidth: 0, hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, pointStyle: 'circle', font: { size: 10 } } },
+        tooltip: { callbacks: { label: c => c.label + ': ' + c.parsed + '%' } }
+      }
+    }
+  });
+}
+
+function initChartIncertidumbre() {
+  destroyChart('chartIncertidumbre');
+  chartInstances['chartIncertidumbre'] = new Chart(document.getElementById('chartIncertidumbre'), {
+    type: 'bar',
+    data: {
+      labels: ['1 (Nada)', '2', '3', '4', '5 (Mucha)'],
+      datasets: [{ data: [5, 11.9, 37.6, 31.7, 13.9], backgroundColor: ['#1e3a5f', '#2563eb', '#3b82f6', '#f59e0b', '#ef4444'], borderRadius: 5, barPercentage: 0.7 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x + '%' } } },
+      scales: {
+        x: { beginAtZero: true, max: 45, grid: { color: 'rgba(59,130,246,0.06)' }, ticks: { callback: v => v + '%', font: { size: 10 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function initChartAccion() {
+  destroyChart('chartAccion');
+  chartInstances['chartAccion'] = new Chart(document.getElementById('chartAccion'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Internet', 'Mecánico', 'La ignora', 'Escáner OBD'],
+      datasets: [{ data: [53.5, 33.7, 7.9, 5], backgroundColor: ['#3b82f6', '#8b5cf6', '#ef4444', '#22c55e'], borderWidth: 0, hoverOffset: 5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '52%',
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, pointStyle: 'circle', font: { size: 10 } } },
+        tooltip: { callbacks: { label: c => c.label + ': ' + c.parsed + '%' } }
+      }
+    }
+  });
+}
+
+function initChartInteres() {
+  destroyChart('chartInteres');
+  chartInstances['chartInteres'] = new Chart(document.getElementById('chartInteres'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Sí', 'Puede ser', 'No'],
+      datasets: [{ data: [52, 47, 1], backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], borderWidth: 0, hoverOffset: 5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, pointStyle: 'circle', font: { size: 10 } } },
+        tooltip: { callbacks: { label: c => c.label + ': ' + c.parsed + '%' } }
+      }
+    }
+  });
+}
+
+function initChartPrecio() {
+  destroyChart('chartPrecio');
+  chartInstances['chartPrecio'] = new Chart(document.getElementById('chartPrecio'), {
+    type: 'bar',
+    data: {
+      labels: ['< 30 €', '30–60 €', '60–100 €', '> 100 €'],
+      datasets: [{ data: [29, 51, 17, 3], backgroundColor: ['#64748b', '#22c55e', '#3b82f6', '#8b5cf6'], borderRadius: 5, barPercentage: 0.65 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '%' } } },
+      scales: {
+        y: { beginAtZero: true, max: 60, grid: { color: 'rgba(59,130,246,0.06)' }, ticks: { callback: v => v + '%', font: { size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+showSlide(0);
+requestAnimationFrame(fitAllSlides);
+</script>
+</body>
+</html>
